@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  # The Python service that provides some basic APIs
+  ukwa-access-api:
+    image: ukwa/ukwa-access-api
+    ports:
+     - "8000:8000"
+
+  # The main UKWA UI itself
+#  ukwa-ui:
+#    image: ukwa/ukwa-ui
+#    ports:
+#     - "9000:9000"
+
