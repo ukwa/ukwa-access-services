@@ -7,6 +7,24 @@ services:
     ports:
      - "8000:8000"
 
+  # OpenWayback for OUKWA
+  openwayback:
+    image: ukwa/waybacks:2017-style-reset
+    ports:
+      - "${INTERNAL_IP}:9080:8080"
+      - "${INTERNAL_IP}:8090:8090"
+    environment:
+      - "UKWA_OWB_VERSION=ukwa"
+      - "WAYBACK_URL_PORT=8080"
+      - "WAYBACK_PROXY_PORT=8090"
+      - "CDX_WHITELIST="
+      - "WAYBACK_EXCLUDE_FILE=/waybacks/wayback-qa/target/ROOT/WEB-INF/classes/exclude.txt"
+      - "WAYBACK_EMBARGO=0"
+      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
+      - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
+      - "WAYBACK_URL_PREFIX=https://beta.webarchive.org.uk/wayback"
+      - "WAYBACK_URL_HOST=${INTERNAL_IP}" 
+
   # The main UKWA UI itself
 #  ukwa-ui:
 #    image: ukwa/ukwa-ui
