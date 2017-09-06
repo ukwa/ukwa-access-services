@@ -1,0 +1,14 @@
+# This override file augments the base configuration with the additional configuration that distingiuishes different deployments
+#
+# The settings below are for the 'beta' service.
+#
+version: '2'
+
+services:
+
+  # Integration points:
+  openwayback:
+    environment:
+      - "WAYBACK_URL_PREFIX=https://beta.webarchive.org.uk/wayback"
+      - "WAYBACK_URL_HOST=${INTERNAL_IP}" 
+

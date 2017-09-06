@@ -1,3 +1,5 @@
+
+# This is the base configuration. 
 version: '2'
 
 services:
@@ -22,8 +24,6 @@ services:
       - "WAYBACK_EMBARGO=0"
       - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
       - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
-      - "WAYBACK_URL_PREFIX=https://beta.webarchive.org.uk/wayback"
-      - "WAYBACK_URL_HOST=${INTERNAL_IP}" 
 
   # The main UKWA UI itself
 #  ukwa-ui:
