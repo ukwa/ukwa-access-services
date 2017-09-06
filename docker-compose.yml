@@ -13,7 +13,7 @@ services:
   openwayback:
     image: ukwa/waybacks:2017-style-reset
     ports:
-      - "${INTERNAL_IP}:9080:8080"
+      - "${INTERNAL_IP}:8080:8080"
       - "${INTERNAL_IP}:8090:8090"
     environment:
       - "UKWA_OWB_VERSION=ukwa"

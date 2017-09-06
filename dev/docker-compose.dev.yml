@@ -9,6 +9,6 @@ services:
   # Integration points:
   openwayback:
     environment:
-      - "WAYBACK_URL_PREFIX=https://${INTERNAL_IP}:8080/"
+      - "WAYBACK_URL_PREFIX=http://access.n45.wa.bl.uk:8080"
       - "WAYBACK_URL_HOST=${INTERNAL_IP}" 
 
