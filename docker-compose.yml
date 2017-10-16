@@ -31,3 +31,37 @@ services:
 #    ports:
 #     - "9000:9000"
 
+  # Access Task Scheduler
+  access:
+    image: ukwa/ukwa-manage:ingest-ng-phase-2
+    ports:
+      - "${INTERNAL_IP}:8082:8082"
+    volumes:
+      - ./prod/access/luigi:/etc/luigi
+
+
+  # ---------------------------------------------------------------------------
+  # Until Monitor is up to running Dockerized services we'll run this UI here:
+  # ---------------------------------------------------------------------------
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    links:
+      - elasticsearch
+    environment:
+      - "GF_AUTH_ANONYMOUS_ENABLED=true"
+    volumes_from:
+      - grafana-storage
+
+  grafana-storage:
+    image: busybox
+    volumes:
+      - ./target/testing/grafana-data:/var/lib/grafana
+
+  elasticsearch:
+    image: elasticsearch:alpine
+    ports:
+      - "9200:9200"
+
