@@ -13,8 +13,8 @@ services:
   openwayback:
     image: ukwa/waybacks:2017-style-reset
     ports:
-      - "${INTERNAL_IP}:8080:8080"
-      - "${INTERNAL_IP}:8090:8090"
+      - "8080:8080"
+      - "8090:8090"
     environment:
       - "UKWA_OWB_VERSION=ukwa"
       - "WAYBACK_URL_PORT=8080"
@@ -31,13 +31,20 @@ services:
 #    ports:
 #     - "9000:9000"
 
+  # Mementos
+  mementos:
+    image: ukwa/mementoweb-webclient
+    ports:
+      - "9000:9000"
+
   # Access Task Scheduler
   access:
     image: ukwa/ukwa-manage:ingest-ng-phase-2
     ports:
-      - "${INTERNAL_IP}:8082:8082"
+      - "8082:8082"
     volumes:
       - ./prod/access/luigi:/etc/luigi
+#      - ./luigid:/var/tmp/luigid
 
 
   # ---------------------------------------------------------------------------
