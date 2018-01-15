@@ -1,6 +1,6 @@
 
 # This is the base configuration. 
-version: '2'
+version: '3.2'
 
 services:
   # The Python service that provides some basic APIs
@@ -57,29 +57,17 @@ services:
       - "ELASTICSEARCH_HOST=access"
       - "ELASTICSEARCH_INDEX_PREFIX=access-tasks"
 
+  # Providing container level metrics:
+  # -------------------------------------------------------------
 
-  # ---------------------------------------------------------------------------
-  # Until Monitor is up to running Dockerized services we'll run this UI here:
-  # ---------------------------------------------------------------------------
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-    links:
-      - elasticsearch
-    environment:
-      - "GF_AUTH_ANONYMOUS_ENABLED=true"
-    volumes_from:
-      - grafana-storage
-
-  grafana-storage:
-    image: busybox
+  cadvisor:
+    image: google/cadvisor
     volumes:
-      - /root/grafana-data:/var/lib/grafana
-
-  elasticsearch:
-    image: elasticsearch:alpine
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     ports:
-      - "9200:9200"
+      - 9393:8080
+
 
