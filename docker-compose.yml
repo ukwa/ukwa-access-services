@@ -29,6 +29,25 @@ services:
     volumes:
       - /root/wayback-config:/usr/local/wayback-config
 
+  openwayback-prod:
+    image: ukwa/waybacks
+    ports:
+      - "7080:8080"
+      - "7090:8090"
+    environment:
+      - "UKWA_OWB_VERSION=ukwa"
+      - "WAYBACK_URL_PORT=8080"
+      - "WAYBACK_URL_PREFIX=https://www.webarchive.org.uk/wayback"
+      - "WAYBACK_PROXY_HOST=192.168.45.25"
+      - "WAYBACK_PROXY_PORT=8090"
+      - "CDX_WHITELIST=/usr/local/wayback-config/open-access-whitelist.txt"
+      - "WAYBACK_EXCLUDE_FILE=/usr/local/wayback-config/exclude-blacklist.txt"
+      - "WAYBACK_EMBARGO=0"
+      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
+      - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
+    volumes:
+      - /root/wayback-config:/usr/local/wayback-config
+
   # The main UKWA UI itself
 #  ukwa-ui:
 #    image: ukwa/ukwa-ui
