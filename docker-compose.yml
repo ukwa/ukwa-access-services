@@ -1,6 +1,6 @@
 
 # This is the base configuration. 
-version: '2'
+version: '3.2'
 
 services:
   # The Python service that provides some basic APIs
@@ -18,12 +18,35 @@ services:
     environment:
       - "UKWA_OWB_VERSION=ukwa"
       - "WAYBACK_URL_PORT=8080"
+      - "WAYBACK_URL_PREFIX=https://beta.webarchive.org.uk/wayback"
+      - "WAYBACK_PROXY_HOST=192.168.45.25"
       - "WAYBACK_PROXY_PORT=8090"
-      - "CDX_WHITELIST="
-      - "WAYBACK_EXCLUDE_FILE=/waybacks/wayback-qa/target/ROOT/WEB-INF/classes/exclude.txt"
+      - "CDX_WHITELIST=/usr/local/wayback-config/open-access-whitelist.txt"
+      - "WAYBACK_EXCLUDE_FILE=/usr/local/wayback-config/exclude-blacklist.txt"
       - "WAYBACK_EMBARGO=0"
       - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
       - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
+    volumes:
+      - /root/wayback-config:/usr/local/wayback-config
+
+  openwayback-prod:
+    image: ukwa/waybacks
+    ports:
+      - "7080:8080"
+      - "7090:8090"
+    environment:
+      - "UKWA_OWB_VERSION=ukwa"
+      - "WAYBACK_URL_PORT=8080"
+      - "WAYBACK_URL_PREFIX=https://www.webarchive.org.uk/wayback"
+      - "WAYBACK_PROXY_HOST=192.168.45.25"
+      - "WAYBACK_PROXY_PORT=8090"
+      - "CDX_WHITELIST=/usr/local/wayback-config/open-access-whitelist.txt"
+      - "WAYBACK_EXCLUDE_FILE=/usr/local/wayback-config/exclude-blacklist.txt"
+      - "WAYBACK_EMBARGO=0"
+      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
+      - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
+    volumes:
+      - /root/wayback-config:/usr/local/wayback-config
 
   # The main UKWA UI itself
   ukwa-ui:
@@ -44,41 +67,36 @@ services:
   # Mementos
   mementos:
     image: ukwa/mementoweb-webclient
+    command: "/mementos/bin/mementos-webclient -Dhttp.proxyHost=194.66.232.92 -Dhttp.proxyPort=3127 -Dconfig.file=/mementos/conf/application.conf -Dpidfile.path=/dev/null"
     ports:
       - "9000:9000"
+    environment:
+      - "JAVA_OPTS=-Xmx1g -Dhttp.proxyHost=explorer -Dhttp.proxyPort=3127"
 
   # Access Task Scheduler
   access:
     image: ukwa/ukwa-manage:ingest-ng-phase-2
+    command: "luigid"
     ports:
       - "8082:8082"
     volumes:
       - ./prod/access/luigi:/etc/luigi
 #      - ./luigid:/var/tmp/luigid
-
-
-  # ---------------------------------------------------------------------------
-  # Until Monitor is up to running Dockerized services we'll run this UI here:
-  # ---------------------------------------------------------------------------
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-    links:
-      - elasticsearch
     environment:
-      - "GF_AUTH_ANONYMOUS_ENABLED=true"
-    volumes_from:
-      - grafana-storage
+      - "ELASTICSEARCH_HOST=access"
+      - "ELASTICSEARCH_INDEX_PREFIX=access-tasks"
 
-  grafana-storage:
-    image: busybox
+  # Providing container level metrics:
+  # -------------------------------------------------------------
+
+  cadvisor:
+    image: google/cadvisor
     volumes:
-      - ./target/testing/grafana-data:/var/lib/grafana
-
-  elasticsearch:
-    image: elasticsearch:alpine
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     ports:
-      - "9200:9200"
+      - 9393:8080
+
 
