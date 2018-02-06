@@ -48,6 +48,13 @@ services:
     volumes:
       - /root/wayback-config:/usr/local/wayback-config
 
+  pywb:
+    image: ukwa/pywb
+    volumes:
+      - ./pywb:/webarchive
+    ports:
+      - "8081:8080"
+
   # The main UKWA UI itself
   ukwa-ui:
     image: ukwa/ukwa-ui

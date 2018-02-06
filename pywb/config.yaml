@@ -1,0 +1,6 @@
+collections:
+    test:
+        index_paths: xmlquery+http://bigcdx:8080/heritrix-data
+        archive_paths: webhdfs://ingest:14000/
+
+
