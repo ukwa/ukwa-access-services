@@ -63,6 +63,9 @@ services:
      - "SOLR_USERNAME=none"
      - "SOLR_PASSWORD=none"
      - "SOLR_SHOW_STUB_DATA_SERVICE_NOT_AVAILABLE=false"
+     - "BL_SMTP_SERVER_HOST=mailer"
+     - "BL_SMTP_USERNAME=mailer"
+     - "BL_SMTP_PASSWORD=mailer"
 
   # Mementos
   mementos:
@@ -93,6 +96,7 @@ services:
     environment:
       - "POSTGRES_USER=access"
       - "POSTGRES_PASSWORD=access"
+      - "POSTGRES_DB=access_task_state"
     ports:
       - "5432:5432"
     volumes:
