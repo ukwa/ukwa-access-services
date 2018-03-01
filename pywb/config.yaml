@@ -1,6 +1,35 @@
-collections:
-    test:
-        index_paths: xmlquery+http://bigcdx:8080/heritrix-data
-        archive_paths: webhdfs://ingest:14000/
+INDEX: &INDEX xmlquery+http://bigcdx:8080/heritrix-data
+STORE: &STORE webhdfs://ingest:14000/
 
+collections:
+    # reading room collection (locks and blocks only)
+    reading-room:
+        index_paths: *INDEX
+        archive_paths: *STORE
+
+        single-use-lock: true
+        acl_paths:
+            - ./acl/blocks.aclj
+
+    # open access (with access controls)
+    open-access:
+        index_paths: *INDEX
+        archive_paths: *STORE
+
+        acl_paths:
+            - ./acl/blocks.aclj
+            - ./acl/allows.aclj
+
+        default_access: block
+
+    # QA no access controls
+    qa-access:
+        index_paths: *INDEX
+        archive_paths: *STORE
+
+proxy:
+    coll: qa-access
+    ca_name: UKWA pywb HTTPS Proxy CA
+    ca_file_cache: ./proxy-certs/pywb-ca.pem
+    recording: false
 
