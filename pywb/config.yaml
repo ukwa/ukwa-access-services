@@ -1,5 +1,5 @@
-INDEX: &INDEX xmlquery+http://192.168.45.21:8080/heritrix-data
-STORE: &STORE webhdfs://192.168.45.60:14000/
+INDEX: &INDEX xmlquery+http://192.168.45.21:8080/data-heritrix
+STORE: &STORE webhdfs://192.168.45.60:14000
 
 collections:
     # reading room collection (locks and blocks only)
