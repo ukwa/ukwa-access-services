@@ -64,6 +64,7 @@ services:
      - "7070:8080"
     environment:
      - "ARCHIVE_WEB_LOCATION=https://www.webarchive.org.uk/wayback/archive/"
+     - "OFF_SITE_URL=https://www.webarchive.org.uk/wayback/archive/"
      - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
