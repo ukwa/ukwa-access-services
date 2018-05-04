@@ -24,7 +24,7 @@ services:
       - "CDX_WHITELIST=/usr/local/wayback-config/open-access-whitelist.txt"
       - "WAYBACK_EXCLUDE_FILE=/usr/local/wayback-config/exclude-blacklist.txt"
       - "WAYBACK_EMBARGO=0"
-      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
+      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.60:14000/webhdfs/v1"
       - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
     volumes:
       - /root/wayback-config:/usr/local/wayback-config
@@ -43,36 +43,40 @@ services:
       - "CDX_WHITELIST=/usr/local/wayback-config/open-access-whitelist.txt"
       - "WAYBACK_EXCLUDE_FILE=/usr/local/wayback-config/exclude-blacklist.txt"
       - "WAYBACK_EMBARGO=0"
-      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
+      - "WAYBACK_HTTPFS_PREFIX=http://192.168.45.60:14000/webhdfs/v1"
       - "CDX_INDEX_SERVER=http://192.168.45.21:8080/data-heritrix"
     volumes:
       - /root/wayback-config:/usr/local/wayback-config
 
   pywb:
-    image: ukwa/pywb
-    volumes:
-      - ./pywb:/webarchive
+    image: ukwa/ukwa-pywb
     ports:
       - "8081:8080"
+    environment:
+      - "WEBHDFS_USER=access"
+      - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
+      - "UKWA_ARCHIVE=webhdfs://192.168.45.60:14000"
 
   # The main UKWA UI itself
   ukwa-ui:
-    image: ukwa/ukwa-ui
+    image: ukwa/ukwa-ui:alpha
     ports:
      - "7070:8080"
     environment:
      - "ARCHIVE_WEB_LOCATION=https://www.webarchive.org.uk/wayback/archive/"
-     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983/solr/collections/select?"
-     - "SOLR_FULL_TEXT_SEARCH_PATH=http://solr-proxy:8983/solr/all/select?"
+     - "OFF_SITE_URL=https://www.webarchive.org.uk/wayback/archive/"
+     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
+     - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
+     - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
+     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
      - "SOLR_READ_TIMEOUT=6000"
      - "SOLR_CONNECTION_TIMEOUT=6000"
+     - "SOLR_USERNAME="
+     - "SOLR_PASSWORD="
      - "SOLR_SHOW_STUB_DATA_SERVICE_NOT_AVAILABLE=true"
-     - "SOLR_USERNAME=none"
-     - "SOLR_PASSWORD=none"
-     - "SOLR_SHOW_STUB_DATA_SERVICE_NOT_AVAILABLE=false"
-     - "BL_SMTP_SERVER_HOST=mailer"
-     - "BL_SMTP_USERNAME=mailer"
-     - "BL_SMTP_PASSWORD=mailer"
+     - "BL_SMTP_SERVER_HOST=juno.bl.uk"
+     - "BL_SMTP_USERNAME="
+     - "BL_SMTP_PASSWORD="
 
   # Mementos
   mementos:
