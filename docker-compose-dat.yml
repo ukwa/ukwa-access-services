@@ -1,0 +1,15 @@
+version: "2"
+
+services:
+
+  hypercored:
+    image: ukwa/docker-hypercored
+    volumes:
+     - /data/dat-hosting:/feeds-to-host
+    network_mode: "host"
+    ports:
+     - 3282:3282
+     - 3282:3282/udp
+     - 8887:8887
+     - 8887:8887/udp
+
