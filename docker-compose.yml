@@ -160,15 +160,6 @@ services:
     volumes:
       - ./prod/access/ukwa-ui.properties:/application.properties:ro   
 
-  # Shine
-  # Basically working, but need to hook in proper database back-end
-  shine:
-    image: ukwa/shine
-    ports:
-      - "9001:9000"
-    environment:
-      - "SOLR_URL=http://192.168.45.70:8983/solr/jisc"
-
   # Mementos
   mementos:
     image: ukwa/mementoweb-webclient
@@ -222,6 +213,26 @@ services:
       - 90:80
 
 
+  # Shine service and database
+  # -------------------------------------------------------------
+
+  # Shine
+  shine:
+   image: ukwa/shine
+   ports:
+     - "9001:9000"
+   environment:
+     - "SOLR_URL=http://192.168.45.70:8983/solr/jisc"
+   depends_on:
+     - shinedb
+
+  # Shine state    
+  shinedb:
+    image: postgres:9.6.2
+    volumes:
+      - "/data/shine/postgresql/data:/var/lib/postgresql/data"   
+      
+      
   # Providing container level metrics:
   # -------------------------------------------------------------
 
