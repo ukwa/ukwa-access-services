@@ -48,8 +48,9 @@ services:
     volumes:
       - /root/gitlab/discovery_supervisor/twang/oukwa-wayback-config:/usr/local/wayback-config
 
+  # Production OA Wayback configuration:
   pywb:
-    image: ukwa/ukwa-pywb
+    image: ukwa/ukwa-pywb:1.0.4
     ports:
       - "8180:8080"
       - "8081:8081"
@@ -58,12 +59,64 @@ services:
       - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
       - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
     volumes:
-      - /root/wayback-config/open-access-whitelist.aclj:/ukwa_pywb/acl/allows.aclj
-      - /root/wayback-config/exclude-blacklist.aclj:/ukwa_pywb/acl/blocks.aclj
+      - ./pywb/config.yaml:/webarchive/config.yaml
+      - /root/wayback-config/acl/:/ukwa_pywb/acl/
+
+  pywb-beta:
+    image: ukwa/ukwa-pywb:1.0.4
+    ports:
+      - "8280:8080"
+      - "8281:8081"
+    environment:
+      - "WEBHDFS_USER=access"
+      - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
+      - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
+    volumes:
+      - ./pywb/config.yaml:/webarchive/config.yaml
+      - /root/wayback-config/acl/:/ukwa_pywb/acl/
+
+  # PhantomJS web page rendering post-crawl
+  pywb-render:
+    image: ukwa/webrender-phantomjs:2.0.13
+    environment:
+      - "HTTP_PROXY=http://pywb:8080"
+      - "LC_ALL=en_US.utf8"
+      - "TMP=/tmp/webrender"
+    volumes:
+      - type: tmpfs
+        target: /tmp/webrender
+    deploy:
+      replicas: 1
+    ports:
+     - "8010:8010"
 
   # The main UKWA UI itself
   ukwa-ui:
-    image: ukwa/ukwa-ui:alpha
+    image: ukwa/ukwa-ui:v1.2.0
+    command: java -Djava.security.egd=file:/dev/./urandom -Dspring.mail.host=juno.bl.uk -jar /ukwa-ui.war --spring.config.location=file:/application.properties
+    ports:
+     - "8181:8080"
+    environment:
+     - "SET_PROTOCOL_TO_HTTPS=true"
+     - "OFF_SITE_URL=https://www.webarchive.org.uk/wayback/en/archive/"
+     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
+     - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
+     - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
+     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
+     - "SOLR_READ_TIMEOUT=60000"
+     - "SOLR_CONNECTION_TIMEOUT=60000"
+     - "SOLR_USERNAME="
+     - "SOLR_PASSWORD="
+     - "SOLR_SHOW_STUB_DATA_SERVICE_NOT_AVAILABLE=true"
+     - "BL_SMTP_SERVER_HOST=juno.bl.uk"
+     - "BL_SMTP_USERNAME="
+     - "BL_SMTP_PASSWORD="
+    volumes:
+      - ./prod/access/ukwa-ui.properties:/application.properties:ro   
+
+  ukwa-ui-beta:
+    image: ukwa/ukwa-ui:beta
+    command: java -Djava.security.egd=file:/dev/./urandom -jar /ukwa-ui.war --spring.config.location=file:/application.properties
     ports:
      - "7070:8080"
     environment:
@@ -81,14 +134,17 @@ services:
      - "BL_SMTP_SERVER_HOST=juno.bl.uk"
      - "BL_SMTP_USERNAME="
      - "BL_SMTP_PASSWORD="
+    volumes:
+      - ./prod/access/ukwa-ui.properties:/application.properties:ro   
 
-  ukwa-ui-pre-alpha:
-    image: ukwa/ukwa-ui:pre-alpha
+  ukwa-ui-alpha:
+    image: ukwa/ukwa-ui:alpha
+    command: java -Djava.security.egd=file:/dev/./urandom -jar /ukwa-ui.war --spring.config.location=file:/application.properties
     ports:
      - "6060:8080"
     environment:
-     - "SET_PROTOCOL_TO_HTTPS=false"
-     - "OFF_SITE_URL=https://alpha.webarchive.org.uk/en/archive/"
+     - "SET_PROTOCOL_TO_HTTPS=true"
+     - "OFF_SITE_URL=https://alpha.webarchive.org.uk/wayback/en/archive/"
      - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
@@ -101,6 +157,8 @@ services:
      - "BL_SMTP_SERVER_HOST=juno.bl.uk"
      - "BL_SMTP_USERNAME="
      - "BL_SMTP_PASSWORD="
+    volumes:
+      - ./prod/access/ukwa-ui.properties:/application.properties:ro   
 
   # Shine
   # Basically working, but need to hook in proper database back-end
