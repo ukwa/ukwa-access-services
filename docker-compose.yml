@@ -87,6 +87,14 @@ services:
     environment:
       - "JAVA_OPTS=-Xmx1g -Dhttp.proxyHost=explorer -Dhttp.proxyPort=3127"
 
+  # Shine
+  shine:
+   image: ukwa/shine
+   ports:
+     - "9001:9000"
+   depends_on:
+     - shinedb
+
   # Access Task Scheduler
   access:
     image: ukwa/ukwa-manage:ingest-ng-phase-2
@@ -101,7 +109,7 @@ services:
       - "ELASTICSEARCH_INDEX_PREFIX=access-tasks"
 
 
-  # PostgreSQL for storing task state
+  # Task state
   taskdb:
     image: postgres:9.6.2
     environment:
@@ -115,6 +123,15 @@ services:
       - "/data/access-task-db/postgresql-in-out-box:/var/lib/postgresql/in-out-box"
 
 
+  # Shine state    
+  shinedb:
+    image: postgres:9.6.2
+    volumes:
+      - "/data/shine/postgresql/data:/var/lib/postgresql/data"   
+    ports:
+      - "5433:5432"  
+      
+      
   # Providing container level metrics:
   # -------------------------------------------------------------
 
