@@ -50,7 +50,7 @@ services:
 
   # Production OA Wayback configuration:
   pywb:
-    image: ukwa/ukwa-pywb:1.0.4
+    image: ukwa/ukwa-pywb:1.0.8
     ports:
       - "8180:8080"
       - "8081:8081"
@@ -63,7 +63,7 @@ services:
       - /root/wayback-config/acl/:/ukwa_pywb/acl/
 
   pywb-beta:
-    image: ukwa/ukwa-pywb:1.0.4
+    image: ukwa/ukwa-pywb:latest
     ports:
       - "8280:8080"
       - "8281:8081"
