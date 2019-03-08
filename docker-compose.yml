@@ -207,4 +207,11 @@ services:
     ports:
       - 9393:8080
 
-
+  #Collections used in UKWA UI
+  ukwa_collections:
+    image: solr:6.3
+    volumes:
+    # n.b container solr userid (8983) should have write permission on host solr dir
+       - "/data/solr/ukwa_collections/server:/opt/solr/server" 
+    ports:
+       - "9020:8983"
