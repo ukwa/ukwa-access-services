@@ -11,7 +11,7 @@ services:
 
   # Production OA Wayback configuration:
   pywb:
-    image: ukwa/ukwa-pywb:1.0.8
+    image: ukwa/ukwa-pywb:1.0.9
     ports:
       - "8180:8080"
       - "8081:8081"
@@ -29,6 +29,7 @@ services:
       - "8280:8080"
       - "8281:8081"
     environment:
+      - "DEBUG=True"
       - "WEBHDFS_USER=access"
       - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
       - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
@@ -53,7 +54,7 @@ services:
 
   # The main UKWA UI itself
   ukwa-ui:
-    image: ukwa/ukwa-ui:v1.2.0
+    image: ukwa/ukwa-ui:v1.2.3
     command: java -Djava.security.egd=file:/dev/./urandom -Dspring.mail.host=juno.bl.uk -jar /ukwa-ui.war --spring.config.location=file:/application.properties
     ports:
      - "8181:8080"
@@ -86,7 +87,7 @@ services:
      - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
-     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
+     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all-beta/select"
      - "SOLR_READ_TIMEOUT=60000"
      - "SOLR_CONNECTION_TIMEOUT=60000"
      - "SOLR_USERNAME="
@@ -184,6 +185,7 @@ services:
      - "9001:9000"
    environment:
      - "SOLR_URL=http://192.168.45.70:8983/solr/jisc"
+     - "JAVA_OPTS=-Xmx2g -XX:+ExitOnOutOfMemoryError"
    depends_on:
      - shinedb
 
