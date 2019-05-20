@@ -1,0 +1,102 @@
+
+# This is the base configuration. 
+version: '3.2'
+
+services:
+  # The Python service that provides some basic APIs
+  ukwa-access-api:
+    image: ukwa/ukwa-access-api
+    environment:
+      - "CDX_SERVER=http://192.168.45.21:8080/data-heritrix"
+      - "WAYBACK_SERVER=http://pywb:8080/archive/"
+      - "WEBHDFS_PREFIX=http://192.168.45.13:14000/webhdfs/v1"
+      - "KAFKA_BOOTSTRAP_SERVERS=192.168.45.15:9094"
+      - "KAFKA_CRAWLED_TOPIC=fc.crawled"
+      - "KAFKA_SEEK_TO_BEGINNING=False"
+      - "API_LABEL=ACCESS API PROTOTYPE"
+      - "KAFKA_LAUNCH_BROKER=192.168.45.15:9094"
+      - "KAFKA_LAUNCH_TOPIC=fc.tocrawl.npld"
+      - "HTTPS_PROXY=http://194.66.232.92:3127/"
+      - "SERVER_NAME=beta.webarchive.org.uk"
+    ports:
+     - "8000:8000"
+
+
+  # Production OA Wayback configuration:
+  pywb-beta:
+    image: ukwa/ukwa-pywb:latest
+    ports:
+      - "8280:8080"
+      - "8281:8081"
+    environment:
+      - "DEBUG=True"
+      - "WEBHDFS_USER=access"
+      - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
+      - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
+    volumes:
+      - ./pywb/config.yaml:/webarchive/config.yaml
+      - /root/wayback-config/acl/:/ukwa_pywb/acl/
+
+  pywb-nobanner:
+    image: ukwa/ukwa-pywb:latest
+    ports:
+      - "8380:8080"
+    environment:
+      - "WEBHDFS_USER=access"
+      - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
+      - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
+    volumes:
+      - ./pywb/config-nobanner.yaml:/webarchive/config.yaml
+      - /root/wayback-config/acl/:/ukwa_pywb/acl/
+      - ./pywb/empty-banner.js:/ukwa_pywb/static/default_banner.js
+    networks:
+      - default
+      - attach
+
+  # PhantomJS web page rendering post-crawl
+  webrender:
+    image: ukwa/webrender-api:latest
+    environment:
+      - "HTTP_PROXY=http://pywb-nobanner:8080"
+      - "DOCKER_NETWORK=access_attach"
+      - "LC_ALL=en_US.utf8"
+      - "WEB_RENDER_TMP=/tmp/webrender"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/webrender:/tmp/webrender
+    deploy:
+      replicas: 1
+    ports:
+     - "8010:8010"
+
+  # The main UKWA UI itself
+  ukwa-ui-beta:
+    image: ukwa/ukwa-ui:beta
+    command: java -Djava.security.egd=file:/dev/./urandom -jar /ukwa-ui.war --spring.config.location=file:/application.properties
+    ports:
+     - "7070:8080"
+    environment:
+     - "SET_PROTOCOL_TO_HTTPS=true"
+     - "OFF_SITE_URL=https://beta.webarchive.org.uk/wayback/archive/"
+     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
+     - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
+     - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
+     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all-beta/select"
+     - "SOLR_READ_TIMEOUT=600000"
+     - "SOLR_CONNECTION_TIMEOUT=60000"
+     - "SOLR_USERNAME="
+     - "SOLR_PASSWORD="
+     - "SOLR_SHOW_STUB_DATA_SERVICE_NOT_AVAILABLE=true"
+     - "BL_SMTP_SERVER_HOST=juno.bl.uk"
+     - "BL_SMTP_USERNAME="
+     - "BL_SMTP_PASSWORD="
+    volumes:
+      - ./prod/access/ukwa-ui.properties:/application.properties:ro   
+
+networks:
+  default:
+    driver: overlay
+    attachable: true
+  attach:
+    driver: overlay
+    attachable: true

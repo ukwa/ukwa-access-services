@@ -24,17 +24,7 @@ proxy:
 
 
 # redirect to exact url behavior
-redirect_to_exact: true
+redirect_to_exact: false
 
-# enable memento
-enable_memento: true
-
-# enable experimental Memento Prefer
-enable_prefer: true
-
-
-locales_root_dir: ./i18n/translations/
-locales:
-  - en
-  - cy
-
+# Disable the frame
+framed_replay: false
