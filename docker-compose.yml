@@ -91,7 +91,7 @@ services:
 
   # The main UKWA UI itself
   ukwa-ui:
-    image: ukwa/ukwa-ui:v1.2.3
+    image: ukwa/ukwa-ui:v1.2.4
     command: java -Djava.security.egd=file:/dev/./urandom -Dspring.mail.host=juno.bl.uk -jar /ukwa-ui.war --spring.config.location=file:/application.properties
     ports:
      - "8181:8080"
