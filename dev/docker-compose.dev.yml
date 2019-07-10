@@ -1,14 +1,17 @@
-# This override file augments the base configuration with the additional configuration that distingiuishes different deployments
 #
-# The settings below are for the 'beta' service.
 #
-version: '3.2'
+#
+#
+
+version: '3.7'
 
 services:
 
-  # Integration points:
-  openwayback:
+  # Shine React
+  shine-react:
+    image: ukwa/shine-react
     environment:
-      - "WAYBACK_URL_PREFIX=http://access.n45.wa.bl.uk:8080"
-      - "WAYBACK_URL_HOST=${INTERNAL_IP}" 
-
+     #- "SOLR_URL=http://192.168.45.33:8983/solr/NPLD-FC2015-20170802"
+     - "SOLR_URL=http://192.168.45.33:8983/solr/all"
+    ports:
+     - 81:80
