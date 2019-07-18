@@ -53,6 +53,10 @@ services:
       - "WEBHDFS_USER=access"
       - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
       - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logs.wa.bl.uk:12201"
     volumes:
       - ./pywb/config.yaml:/webarchive/config.yaml
       - /root/wayback-config/acl/:/ukwa_pywb/acl/
@@ -91,7 +95,7 @@ services:
 
   # The main UKWA UI itself
   ukwa-ui:
-    image: ukwa/ukwa-ui:v1.2.4
+    image: ukwa/ukwa-ui:v1.2.5
     command: java -Djava.security.egd=file:/dev/./urandom -Dspring.mail.host=juno.bl.uk -jar /ukwa-ui.war --spring.config.location=file:/application.properties
     ports:
      - "8181:8080"
@@ -124,7 +128,7 @@ services:
      - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
-     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all-beta/select"
+     - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
      - "SOLR_READ_TIMEOUT=600000"
      - "SOLR_CONNECTION_TIMEOUT=60000"
      - "SOLR_USERNAME="
@@ -133,6 +137,10 @@ services:
      - "BL_SMTP_SERVER_HOST=juno.bl.uk"
      - "BL_SMTP_USERNAME="
      - "BL_SMTP_PASSWORD="
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logs.wa.bl.uk:12201"
     volumes:
       - ./prod/access/ukwa-ui.properties:/application.properties:ro   
 
