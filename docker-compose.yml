@@ -31,7 +31,7 @@ services:
 
   # Production OA Wayback configuration:
   pywb:
-    image: ukwa/ukwa-pywb:1.0.9
+    image: ukwa/ukwa-pywb:1.0.9.1
     ports:
       - "8180:8080"
       - "8081:8081"
@@ -39,19 +39,23 @@ services:
       - "WEBHDFS_USER=access"
       - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
       - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logs.wa.bl.uk:12201"
     volumes:
       - ./pywb/config.yaml:/webarchive/config.yaml
       - /root/wayback-config/acl/:/ukwa_pywb/acl/
 
   pywb-beta:
-    image: ukwa/ukwa-pywb:latest
+    image: ukwa/ukwa-pywb:2.4.0-beta-5
     ports:
       - "8280:8080"
       - "8281:8081"
     environment:
       - "DEBUG=True"
       - "WEBHDFS_USER=access"
-      - "UKWA_INDEX=xmlquery+http://192.168.45.21:8080/data-heritrix"
+      - "UKWA_INDEX=xmlquery+http://cdx.api.wa.bl.uk/data-heritrix"
       - "UKWA_ARCHIVE=webhdfs://192.168.45.13:14000"
     logging:
       driver: gelf
@@ -95,14 +99,14 @@ services:
 
   # The main UKWA UI itself
   ukwa-ui:
-    image: ukwa/ukwa-ui:v1.2.5
+    image: ukwa/ukwa-ui:v1.2.8
     command: java -Djava.security.egd=file:/dev/./urandom -Dspring.mail.host=juno.bl.uk -jar /ukwa-ui.war --spring.config.location=file:/application.properties
     ports:
      - "8181:8080"
     environment:
      - "SET_PROTOCOL_TO_HTTPS=true"
      - "OFF_SITE_URL=https://www.webarchive.org.uk/wayback/en/archive/"
-     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
+     - "SOLR_COLLECTION_SEARCH_PATH=http://ukwa_collections:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
      - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
@@ -114,6 +118,10 @@ services:
      - "BL_SMTP_SERVER_HOST=juno.bl.uk"
      - "BL_SMTP_USERNAME="
      - "BL_SMTP_PASSWORD="
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logs.wa.bl.uk:12201"
     volumes:
       - ./prod/access/ukwa-ui.properties:/application.properties:ro   
 
@@ -125,7 +133,7 @@ services:
     environment:
      - "SET_PROTOCOL_TO_HTTPS=true"
      - "OFF_SITE_URL=https://beta.webarchive.org.uk/wayback/archive/"
-     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
+     - "SOLR_COLLECTION_SEARCH_PATH=http://ukwa_collections:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
      - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
@@ -152,7 +160,7 @@ services:
     environment:
      - "SET_PROTOCOL_TO_HTTPS=true"
      - "OFF_SITE_URL=https://alpha.webarchive.org.uk/wayback/en/archive/"
-     - "SOLR_COLLECTION_SEARCH_PATH=http://192.168.45.241:8983"
+     - "SOLR_COLLECTION_SEARCH_PATH=http://ukwa_collections:8983"
      - "SOLR_COLLECTION_SEARCH_REQUEST_HANDLER=/solr/collections/select"
      - "SOLR_FULL_TEXT_SEARCH_PATH=http://192.168.45.33:8983"
      - "SOLR_FULL_TEXT_SEARCH_REQUEST_HANDLER=/solr/all/select"
@@ -181,6 +189,10 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logs.wa.bl.uk:12201"
     volumes:
       - ./prod/access/nginx.conf:/etc/nginx/conf.d/default.conf:ro   
 

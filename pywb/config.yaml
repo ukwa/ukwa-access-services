@@ -13,6 +13,9 @@ collections:
 
         default_access: block
 
+        # up the query limit:
+        query_limit: 100000
+
 proxy:
     # collection for proxy mode
     coll: archive
@@ -32,7 +35,7 @@ enable_memento: true
 # enable experimental Memento Prefer
 enable_prefer: true
 
-
+# Locale setup
 locales_root_dir: ./i18n/translations/
 locales:
   - en
